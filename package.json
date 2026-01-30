@@ -10,6 +10,9 @@
     "format": "prettier --write .",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
   "dependencies": {
     "next": "16.1.4",
     "react": "19.2.3",
