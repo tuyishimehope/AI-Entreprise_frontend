@@ -6,13 +6,27 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Box, Typography, useColorScheme } from "@mui/material";
 import styles from "./navbar.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const Navbar = () => {
   const { mode, setMode } = useColorScheme();
   const [toggle, setToggle] = useState(false);
+  const docRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setMode("system");
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (docRef.current && !docRef.current.contains(e.target as Node)) {
+        setToggle(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   return (
@@ -20,8 +34,8 @@ const Navbar = () => {
       <Box></Box>
       <Box>
         <Box className={styles.settings}>
-          {/* <Typography variant="h6">User</Typography> */}
-          <Box>
+          <Typography variant="h6">User</Typography>
+          <Box ref={docRef}>
             <SettingsIcon onClick={() => setToggle(!toggle)} />
             {toggle && (
               <Box className={styles.themes}>
