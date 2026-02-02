@@ -38,13 +38,14 @@ type ChatsData = {
   created_at: string;
   document_id: string;
   document: Document;
+  file_id: string;
 };
 
 const Page = () => {
   const [query, setQuery] = useState<string | null>();
   const [file, setFile] = useState<File | null>();
-  const [fileId, setFileId] = useState();
-  const [data, setData] = useState<ResponseData | ChatsData>();
+  const [fileId, setFileId] = useState<string>();
+  const [data, setData] = useState<ResponseData[] | ChatsData[]>();
   const [isLoading, setIsLoading] = useState(false);
   const lastMessagesRef = useRef<HTMLDivElement>(null);
 
@@ -106,7 +107,7 @@ const Page = () => {
   };
   useEffect(() => {
     async function getData() {
-      const response = await axios.get(`${api}/history`);
+      const response = await axios.get<ChatsData[]>(`${api}/history`);
       setData(response.data);
       setFileId(response.data[0].file_id);
     }
@@ -140,7 +141,7 @@ const Page = () => {
             </Box>
           ))}
         </Box>
-        {!data && (
+        {/* {!data && (
           <Box className={styles.chat_upload_container}>
             <Box className={styles.chat_upload_container_content}>
               <Typography variant="h5">Upload file</Typography>
@@ -151,7 +152,7 @@ const Page = () => {
               />
             </Box>
           </Box>
-        )}
+        )} */}
         <Box className={styles.chat_input_container}>
           <TextField
             fullWidth
@@ -163,7 +164,7 @@ const Page = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handleSubmit(e as any);
+                handleSubmit(e);
               }
             }}
             disabled={isLoading}
