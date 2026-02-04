@@ -18,12 +18,19 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@pdf-viewer/react": "^1.17.0",
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@react-pdf-viewer/default-layout": "^3.12.0",
+    "@react-pdf/renderer": "^4.3.2",
     "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.13.4",
-    "next": "16.1.4",
+    "next": "^16.1.6",
+    "pdfjs-dist": "^3.11.174",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-markdown": "^10.1.0"
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "react-pdf": "^10.3.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

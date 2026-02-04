@@ -1,21 +1,15 @@
 "use client";
 
-import {
-  Box,
-  Button,
-  CircularProgress,
-  TextField,
-  Typography,
-} from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
 import LinkIcon from "@mui/icons-material/Link";
-import styles from "./page.module.css";
-import { ChangeEvent, useEffect, useState, useRef } from "react";
+import SendIcon from "@mui/icons-material/Send";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import axios from "axios";
+import { ChangeEvent, Key, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import styles from "./page.module.css";
+import PdfClientViewer from "../components/PdfClientViewer";
 
 const api = process.env.NEXT_PUBLIC_API_URL;
-
 type ResponseData = {
   id: string;
   question: string;
@@ -44,9 +38,10 @@ type ChatsData = {
 const Page = () => {
   const [query, setQuery] = useState<string | null>();
   const [file, setFile] = useState<File | null>();
-  const [fileId, setFileId] = useState<string>();
-  const [data, setData] = useState<ResponseData[] | ChatsData[]>();
+  const [fileId, setFileId] = useState<string | null>();
+  const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeHighlight, setActiveHighlight] = useState("");
   const lastMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,6 +53,7 @@ const Page = () => {
       setFile(e.target?.files[0]);
     }
   };
+
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
@@ -71,6 +67,8 @@ const Page = () => {
     setIsLoading(true);
 
     const tempId = Date.now();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     setData((prev) => [
       ...(prev || []),
       { question: currentQuery, answer: "...", id: tempId },
@@ -91,11 +89,9 @@ const Page = () => {
       chatFormData.append("question", currentQuery);
       if (activeFileId) chatFormData.append("file_id", activeFileId);
 
-      const response = await axios.post<ResponseData>(
-        `${api}/chat`,
-        chatFormData,
-      );
-
+      const response = await axios.post(`${api}/chat`, chatFormData);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       setData((prev) =>
         prev?.map((msg) => (msg.id === tempId ? response.data : msg)),
       );
@@ -105,11 +101,13 @@ const Page = () => {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     async function getData() {
-      const response = await axios.get<ChatsData[]>(`${api}/history`);
+      const response = await axios.get(`${api}/history`);
       setData(response.data);
-      setFileId(response.data[0].file_id);
+      console.log(response.data);
+      setFileId(response.data[0].document_id);
     }
     getData();
   }, []);
@@ -117,11 +115,16 @@ const Page = () => {
   return (
     <Box className={styles.chat_container}>
       <Box className={styles.chat_document}>
-        <Typography variant="h6">Documents</Typography>
+        {/* <PdfViewer fileUrl="./sample-policy.pdf" searchText={activeHighlight} /> */}
+        <PdfClientViewer
+          fileUrl="./sample-policy.pdf"
+          highlightText={activeHighlight}
+        />
       </Box>
       <form className={styles.chat_content} onSubmit={handleSubmit}>
         <Box className={styles.message_container}>
-          {data?.map((d, index) => (
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          {data?.map((d: any, index: Key) => (
             <Box
               key={index}
               className={styles.chat_bubble}
@@ -131,8 +134,15 @@ const Page = () => {
               <Box className={styles.answer_bubble}>
                 <ReactMarkdown>{d.answer}</ReactMarkdown>
                 <span>
-                  {d.sources?.map((index) => (
-                    <span key={index} className={styles.citation}>
+                  {d.sources?.map((source: string, index: Key) => (
+                    <span
+                      key={index}
+                      className={styles.citation}
+                      onClick={() => {
+                        const snippet = source.substring(0, 30);
+                        setActiveHighlight(snippet);
+                      }}
+                    >
                       <LinkIcon />
                     </span>
                   ))}

@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: row;
   height: calc(100vh - 6vh);
+  overflow: hidden;
 }
 .chat_document {
-  width: 50vw;
-  height: inherit;
-  border-right: 2px solid red;
+  width: 60vw;
+  height: 100%;
 }
 .chat_content {
   width: 100%;

@@ -15,9 +15,6 @@ const Navbar = () => {
 
   useEffect(() => {
     setMode("system");
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (docRef.current && !docRef.current.contains(e.target as Node)) {
         setToggle(false);
@@ -36,6 +33,7 @@ const Navbar = () => {
         <Box className={styles.settings}>
           <Typography variant="h6">User</Typography>
           <Box ref={docRef}>
+            {mode}
             <SettingsIcon onClick={() => setToggle(!toggle)} />
             {toggle && (
               <Box className={styles.themes}>
