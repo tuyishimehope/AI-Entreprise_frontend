@@ -14,8 +14,8 @@ export default function Home() {
         <Button onClick={() => navigate.push("/chat")} variant="contained">
           start
         </Button>
-        <Button onClick={() => navigate.push("/document")} variant="contained">
-          view document
+        <Button onClick={() => navigate.push("/file")} variant="contained">
+          File handling
         </Button>
       </Container>
     </ThemeProvider>

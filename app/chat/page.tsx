@@ -1,194 +1,173 @@
 "use client";
 
-import LinkIcon from "@mui/icons-material/Link";
-import SendIcon from "@mui/icons-material/Send";
-import { Box, Button, CircularProgress, TextField } from "@mui/material";
-import axios from "axios";
-import { ChangeEvent, Key, useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import {
+  Typography,
+  Button,
+  Stack,
+  Box,
+  Paper,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, useState, FormEvent, useEffect } from "react";
 import styles from "./page.module.css";
-import PdfClientViewer from "../components/PdfClientViewer";
+import heroImage from "../../public/image.png";
+import { api } from "../util/api";
+import axios from "axios";
 
-const api = process.env.NEXT_PUBLIC_API_URL;
-type ResponseData = {
+type SessionData = {
   id: string;
-  question: string;
-  answer: string;
-  sources: string[];
   document_id: string;
-  file_id: string;
-};
-type Document = {
-  filename: string;
-  id: string;
+  title: string;
   created_at: string;
-};
-
-type ChatsData = {
-  question: string;
-  answer: string;
-  sources: string[];
-  id: string;
-  created_at: string;
-  document_id: string;
-  document: Document;
-  file_id: string;
 };
 
 const Page = () => {
-  const [query, setQuery] = useState<string | null>();
-  const [file, setFile] = useState<File | null>();
-  const [fileId, setFileId] = useState<string | null>();
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeHighlight, setActiveHighlight] = useState("");
-  const lastMessagesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    lastMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [data]);
+  const router = useRouter();
+  const [file, setFile] = useState<File | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sessions, setSessions] = useState<SessionData[]>([]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target?.files[0]);
+    if (e.target.files?.[0]) {
+      setFile(e.target.files[0]);
     }
   };
 
-  const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!query?.trim() || isLoading) return;
+    if (!file) return;
 
-    const currentQuery = query;
-    setQuery("");
-    setIsLoading(true);
-
-    const tempId = Date.now();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    setData((prev) => [
-      ...(prev || []),
-      { question: currentQuery, answer: "...", id: tempId },
-    ]);
-
-    try {
-      let activeFileId = fileId;
-
-      if (file && !activeFileId) {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await axios.post(`${api}/file`, formData);
-        activeFileId = res.data.id;
-        setFileId(activeFileId);
-      }
-
-      const chatFormData = new FormData();
-      chatFormData.append("question", currentQuery);
-      if (activeFileId) chatFormData.append("file_id", activeFileId);
-
-      const response = await axios.post(`${api}/chat`, chatFormData);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      setData((prev) =>
-        prev?.map((msg) => (msg.id === tempId ? response.data : msg)),
-      );
-    } catch (error) {
-      console.error("Submission failed", error);
-    } finally {
-      setIsLoading(false);
+    const formData = new FormData();
+    formData.append("file", file);
+    if (!file) return;
+    const response = await axios.post(`${api}/session`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log(response);
+    if (response.status == 200) {
+      setSessions((prev) => [...prev, response.data]);
+      router.push(`/chat/${response.data.id}`);
     }
+
+    setIsModalOpen(false);
+    setFile(null);
   };
 
   useEffect(() => {
-    async function getData() {
-      const response = await axios.get(`${api}/history`);
-      setData(response.data);
-      console.log(response.data);
-      setFileId(response.data[0].document_id);
-    }
-    getData();
+    const loadSessions = async () => {
+      const res = await axios.get(`${api}/session`);
+      setSessions(res.data);
+    };
+
+    loadSessions();
   }, []);
 
   return (
-    <Box className={styles.chat_container}>
-      <Box className={styles.chat_document}>
-        {/* <PdfViewer fileUrl="./sample-policy.pdf" searchText={activeHighlight} /> */}
-        <PdfClientViewer
-          fileUrl="./sample-policy.pdf"
-          highlightText={activeHighlight}
-        />
-      </Box>
-      <form className={styles.chat_content} onSubmit={handleSubmit}>
-        <Box className={styles.message_container}>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {data?.map((d: any, index: Key) => (
+    <Box className={styles.main_layout}>
+      {/* Left Column: Hero / Visuals */}
+      <Stack className={styles.hero_section}>
+        <Box className={styles.image_placeholder}>
+          <Image src={heroImage} alt="RAG Illustration" priority />
+        </Box>
+      </Stack>
+
+      {/* Right Column: Content */}
+      <Stack spacing={4} className={styles.content_section}>
+        <Box>
+          <Typography variant="h3" fontWeight="800">
+            ENTERPRISE RAG
+          </Typography>
+          <Typography variant="h5" color="var(--text-muted)" sx={{ mb: 3 }}>
+            Chat with your documents intelligently.
+          </Typography>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            variant="contained"
+            size="large"
+            // startIcon={<CloudUploadIcon />}
+            sx={{ borderRadius: "12px", textTransform: "none" }}
+          >
+            Create New Session
+          </Button>
+        </Box>
+
+        <Box className={styles.session_list_container}>
+          <Typography
+            variant="h6"
+            sx={{ borderBottom: "1px solid var(--border-subtle)", pb: 1 }}
+          >
+            Recent Sessions
+          </Typography>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            {sessions.length === 0 ? (
+              <Typography color="var(--text-muted)">
+                No sessions yet. Start by uploading a file.
+              </Typography>
+            ) : (
+              sessions.map((session) => (
+                <Paper
+                  key={session.id}
+                  className={styles.session_card}
+                  onClick={() => router.push(`/chat/${session.id}`)}
+                >
+                  <Typography variant="body1" fontWeight="600">
+                    {session.title}
+                  </Typography>
+                  <Typography variant="caption">
+                    {new Date(session.created_at).toLocaleDateString()}
+                  </Typography>
+                </Paper>
+              ))
+            )}
+          </Stack>
+        </Box>
+      </Stack>
+
+      {/* Overlay Modal */}
+      {isModalOpen && (
+        <Box className={styles.form_modal}>
+          <Paper elevation={24} className={styles.form_container}>
             <Box
-              key={index}
-              className={styles.chat_bubble}
-              ref={index === data.length - 1 ? lastMessagesRef : null}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              <Box className={styles.question_bubble}>{d.question}</Box>
-              <Box className={styles.answer_bubble}>
-                <ReactMarkdown>{d.answer}</ReactMarkdown>
-                <span>
-                  {d.sources?.map((source: string, index: Key) => (
-                    <span
-                      key={index}
-                      className={styles.citation}
-                      onClick={() => {
-                        const snippet = source.substring(0, 30);
-                        setActiveHighlight(snippet);
-                      }}
-                    >
-                      <LinkIcon />
-                    </span>
-                  ))}
-                </span>
+              <Typography variant="h6">Upload Document</Typography>
+              <IconButton onClick={() => setIsModalOpen(false)}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+
+            <form onSubmit={handleSubmit} className={styles.form_inner}>
+              <Box className={styles.file_dropzone}>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  className={styles.hidden_input}
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload" className={styles.file_label}>
+                  {file ? file.name : "Click to select a PDF"}
+                </label>
               </Box>
-            </Box>
-          ))}
+
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!file}
+                fullWidth
+              >
+                Upload and Analyze
+              </Button>
+            </form>
+          </Paper>
         </Box>
-        {/* {!data && (
-          <Box className={styles.chat_upload_container}>
-            <Box className={styles.chat_upload_container_content}>
-              <Typography variant="h5">Upload file</Typography>
-              <TextField
-                type="file"
-                placeholder="upload file"
-                onChange={handleFileChange}
-              />
-            </Box>
-          </Box>
-        )} */}
-        <Box className={styles.chat_input_container}>
-          <TextField
-            fullWidth
-            multiline
-            maxRows={4}
-            value={query || ""}
-            type="text"
-            onChange={handleQueryChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            disabled={isLoading}
-            placeholder="Ask a question..."
-            InputProps={{
-              endAdornment: (
-                <Button type="submit" disabled={isLoading || !query?.trim()}>
-                  {isLoading ? <CircularProgress size={24} /> : <SendIcon />}
-                </Button>
-              ),
-            }}
-          />
-        </Box>
-      </form>
+      )}
     </Box>
   );
 };

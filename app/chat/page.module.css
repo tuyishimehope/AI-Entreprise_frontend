@@ -1,90 +1,76 @@
-.chat_container {
+.main_layout {
   display: flex;
-  flex-direction: row;
+  gap: 3rem;
+  width: 100%;
   height: calc(100vh - 6vh);
+  padding: 3rem;
+  background-color: var(--background);
   overflow: hidden;
 }
-.chat_document {
-  width: 60vw;
-  height: 100%;
-}
-.chat_content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-.chat_upload_container {
-  height: 100%;
-  display: flex;
-}
-.chat_upload_container_content {
-  display: flex;
-  flex-direction: column;
 
-  background-color: rgb(209, 209, 255);
-  height: 200px;
-  border-radius: 1rem;
-  padding: 1rem;
-  width: 400px;
-}
-/* chat message */
-.message_container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  width: 100%;
-  overflow-y: scroll;
-}
-
-.chat_bubble {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 1rem;
-}
-.question_bubble {
-  display: flex;
-  align-items: flex-end;
-  align-self: flex-end;
-  justify-content: flex-end;
-  background-color: rgb(99, 144, 250);
-  padding: 1rem;
-  border-radius: 2rem;
-}
-
-.answer_bubble {
-  align-items: flex-start;
-  align-self: flex-start;
-  justify-content: flex-start;
-  background-color: rgba(179, 179, 179, 0.395);
-  padding: 1rem;
-  border-radius: 2rem;
-}
-.citation {
-  padding: 0 0.5rem 0 0;
-}
-.citation:hover {
-  cursor: pointer;
-  color: blue;
-}
-
-/* chat input  */
-.chat_input_container {
-  display: flex;
-  justify-content: flex-end;
-  margin: 1rem;
-  border: 1px solid black;
-  border-radius: 3rem;
-}
-.chat_input_container input {
-  display: flex;
+.hero_section {
   flex: 1;
-  justify-content: flex-end;
-  width: 100%;
-  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.chat_input_button {
-  border-radius: 100%;
+
+.content_section {
+  flex: 1;
+  text-align: left;
+}
+
+.session_card {
+  padding: 1rem;
+  background-color: var(--surface-primary) !important;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.session_card:hover {
+  transform: translateY(-2px);
+  border-color: var(--foreground);
+}
+
+.form_modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.form_container {
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  background-color: var(--background) !important;
+  border-radius: 1rem;
+}
+
+.form_inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.file_dropzone {
+  border: 2px dashed var(--border-subtle);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.hidden_input {
+  display: none;
+}
+
+.file_label {
+  cursor: pointer;
+  color: var(--text-muted);
 }
