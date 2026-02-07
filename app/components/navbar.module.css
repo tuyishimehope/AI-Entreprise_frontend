@@ -5,8 +5,8 @@
   height: 6vh;
   justify-content: space-between;
   padding: 0 1.5rem;
-  background-color: var(--color-surface-1);
-  border-bottom: 1px solid var(--border-subtle);
+  /* background-color: var(--color-fg); */
+  border-bottom: 1px solid var(--color-border-subtle);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -31,7 +31,7 @@
   right: 0;
   top: calc(100% + 10px);
   width: 140px;
-  background-color: var(--surface-primary) !important;
+  background-color: var(--color-fg) !important;
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   overflow: hidden;
@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: var(--foreground);
+  color: var(--color-bg);
   transition: background 0.2s ease;
   cursor: pointer;
 }
@@ -56,4 +56,11 @@
 .active_option {
   color: #0070f3;
   background-color: var(--surface-secondary);
+}
+
+.link {
+  cursor: pointer;
+}
+.link:hover {
+  color: var(--color-accent);
 }

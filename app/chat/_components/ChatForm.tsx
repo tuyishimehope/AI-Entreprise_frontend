@@ -1,3 +1,4 @@
+import { ChangeEvent, useRef } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
@@ -9,17 +10,8 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { ChangeEvent, Dispatch, SetStateAction, useRef } from "react";
+import { ChatFormProps } from "../../types/chat.type";
 import styles from "./ChatForm.module.css";
-
-interface ChatFormProps {
-  setFile: Dispatch<SetStateAction<File | null>>;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
-  isLoading: boolean;
-  query: string | null | undefined;
-  setQuery: Dispatch<SetStateAction<string>>;
-  file: File | null | undefined;
-}
 
 const ChatForm = ({
   handleSubmit,
@@ -44,7 +36,6 @@ const ChatForm = ({
 
   return (
     <Box className={styles.form_wrapper}>
-      {/* File Preview Chip - Floating above the input */}
       {file && (
         <Box className={styles.file_preview}>
           <span>{file.name}</span>
@@ -82,7 +73,6 @@ const ChatForm = ({
             "& .MuiOutlinedInput-root": {
               borderRadius: "24px",
               paddingRight: "8px",
-              backgroundColor: "white",
             },
           }}
           InputProps={{

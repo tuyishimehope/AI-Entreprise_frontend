@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { Box } from "@mui/material";
 import axios from "axios";
-import ChatForm from "../../components/ChatForm";
-import ChatMessage from "../../components/ChatMessage";
+import ChatForm from "../_components/ChatForm";
+import ChatMessage from "../_components/ChatMessage";
 import PdfClientViewer from "../../components/PdfClientViewer";
 import { api } from "../../util/api";
 import { ChatsData } from "../../types/chat.type";
@@ -15,17 +15,15 @@ const Page = () => {
   const [query, setQuery] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [fileId, setFileId] = useState<string | null>(null);
-  const [data, setData] = useState<ChatsData[] | null>([]);
+  const [data, setData] = useState<ChatsData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeHighlight, setActiveHighlight] = useState("");
-  const session_id = useParams();
+  const parms = useParams();
+  const session_id = parms.id;
 
   const fetchHistory = useCallback(async () => {
-    console.log(session_id);
     try {
-      const { data: history } = await axios.get(
-        `${api}/history/${session_id.id}`,
-      );
+      const { data: history } = await axios.get(`${api}/history/${session_id}`);
       setData(history);
     } catch (err) {
       console.error("Failed to load history", err);
@@ -33,9 +31,10 @@ const Page = () => {
   }, []);
 
   const getFileId = async () => {
-    const result = await axios.get(`${api}/session/${session_id.id}`);
-    setFileId(result.data[0].document_id);
+    const result = await axios.get(`${api}/session/${session_id}`);
+    setFileId(result.data.document_id);
   };
+
   useEffect(() => {
     getFileId();
   }, []);
@@ -51,7 +50,6 @@ const Page = () => {
     const currentQuery = query;
     const tempId = Date.now().toString();
 
-    // 1. OPTIMISTIC UPDATE: Add the question immediately
     const optimisticMessage: ChatsData = {
       id: tempId,
       question: currentQuery,
@@ -68,27 +66,31 @@ const Page = () => {
     };
 
     setQuery("");
-    setData((prev) => [...prev, optimisticMessage]);
+    setData((prev) => [...(prev ?? []), optimisticMessage]);
     setIsLoading(true);
 
     try {
-      // 3. Send Chat Request
       const chatFormData = new FormData();
-      chatFormData.append("question", currentQuery);
-      chatFormData.append("file_id", fileId);
-      chatFormData.append("session_id", session_id.id);
+      if (currentQuery && typeof currentQuery === "string") {
+        chatFormData.append("question", currentQuery);
+      }
+
+      if (fileId && session_id) {
+        const documentId = String(fileId);
+        const sessionId = String(session_id);
+        chatFormData.append("file_id", documentId);
+        chatFormData.append("session_id", sessionId);
+      }
 
       const { data: responseData } = await axios.post(
         `${api}/chat`,
         chatFormData,
       );
 
-      // 4. REPLACE optimistic message with real data
       setData((prev) =>
         prev.map((msg) => (msg.id === tempId ? responseData : msg)),
       );
     } catch (error) {
-      // 5. ERROR RECOVERY: Remove the failed message or show error
       setData((prev) =>
         prev.map((msg) =>
           msg.id === tempId
@@ -105,7 +107,7 @@ const Page = () => {
     <Box className={styles.chat_container}>
       <Box className={styles.chat_document}>
         <PdfClientViewer
-          fileUrl={`${api}/file/${fileId}`}
+          fileUrl={`${api}/files/${fileId}/download`}
           highlightText={activeHighlight}
         />
       </Box>

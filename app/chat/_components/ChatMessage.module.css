@@ -33,7 +33,7 @@
 .answer_bubble {
   align-self: flex-start;
   width: 100%;
-  background-color: var(--color-bg);
+  /* background-color: var(--color-fg); */
   color: var(--text-text-primary);
   padding: 1rem 1.5rem;
   border-radius: 0 1.2rem 1.2rem 1.2rem;

@@ -1,28 +1,16 @@
 "use client";
 
-import {
-  Typography,
-  Button,
-  Stack,
-  Box,
-  Paper,
-  IconButton,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState, FormEvent, useEffect } from "react";
-import styles from "./page.module.css";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import heroImage from "../../public/image.png";
+import Session from "./_components/Session";
+import UploadDocument from "./_components/UploadDocument";
+import { SessionData } from "../types/Session.type";
 import { api } from "../util/api";
-import axios from "axios";
-
-type SessionData = {
-  id: string;
-  document_id: string;
-  title: string;
-  created_at: string;
-};
+import styles from "./page.module.css";
 
 const Page = () => {
   const router = useRouter();
@@ -48,7 +36,7 @@ const Page = () => {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log(response);
+
     if (response.status == 200) {
       setSessions((prev) => [...prev, response.data]);
       router.push(`/chat/${response.data.id}`);
@@ -67,16 +55,28 @@ const Page = () => {
     loadSessions();
   }, []);
 
+  const handleDeleteSession = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+
+    if (!confirm("Are you sure you want to delete this session?")) return;
+
+    try {
+      const response = await axios.delete(`${api}/session/${id}`);
+      if (response.status === 200 || response.status === 204) {
+        setSessions((prev) => prev.filter((s) => s.id !== id));
+      }
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  };
   return (
     <Box className={styles.main_layout}>
-      {/* Left Column: Hero / Visuals */}
       <Stack className={styles.hero_section}>
         <Box className={styles.image_placeholder}>
           <Image src={heroImage} alt="RAG Illustration" priority />
         </Box>
       </Stack>
 
-      {/* Right Column: Content */}
       <Stack spacing={4} className={styles.content_section}>
         <Box>
           <Typography variant="h3" fontWeight="800">
@@ -89,84 +89,25 @@ const Page = () => {
             onClick={() => setIsModalOpen(true)}
             variant="contained"
             size="large"
-            // startIcon={<CloudUploadIcon />}
             sx={{ borderRadius: "12px", textTransform: "none" }}
           >
             Create New Session
           </Button>
         </Box>
 
-        <Box className={styles.session_list_container}>
-          <Typography
-            variant="h6"
-            sx={{ borderBottom: "1px solid var(--border-subtle)", pb: 1 }}
-          >
-            Recent Sessions
-          </Typography>
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            {sessions.length === 0 ? (
-              <Typography color="var(--text-muted)">
-                No sessions yet. Start by uploading a file.
-              </Typography>
-            ) : (
-              sessions.map((session) => (
-                <Paper
-                  key={session.id}
-                  className={styles.session_card}
-                  onClick={() => router.push(`/chat/${session.id}`)}
-                >
-                  <Typography variant="body1" fontWeight="600">
-                    {session.title}
-                  </Typography>
-                  <Typography variant="caption">
-                    {new Date(session.created_at).toLocaleDateString()}
-                  </Typography>
-                </Paper>
-              ))
-            )}
-          </Stack>
-        </Box>
+        <Session
+          sessions={sessions}
+          handleDeleteSession={handleDeleteSession}
+        />
       </Stack>
 
-      {/* Overlay Modal */}
       {isModalOpen && (
-        <Box className={styles.form_modal}>
-          <Paper elevation={24} className={styles.form_container}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Typography variant="h6">Upload Document</Typography>
-              <IconButton onClick={() => setIsModalOpen(false)}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            <form onSubmit={handleSubmit} className={styles.form_inner}>
-              <Box className={styles.file_dropzone}>
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  className={styles.hidden_input}
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload" className={styles.file_label}>
-                  {file ? file.name : "Click to select a PDF"}
-                </label>
-              </Box>
-
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={!file}
-                fullWidth
-              >
-                Upload and Analyze
-              </Button>
-            </form>
-          </Paper>
-        </Box>
+        <UploadDocument
+          file={file}
+          handleFileChange={handleFileChange}
+          handleSubmit={handleSubmit}
+          setIsModalOpen={setIsModalOpen}
+        />
       )}
     </Box>
   );

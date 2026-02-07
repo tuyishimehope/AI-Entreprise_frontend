@@ -8,11 +8,13 @@ import {
   IconButton,
   Paper,
 } from "@mui/material";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
 import styles from "./navbar.module.css";
+import { useRouter } from "next/navigation";
 
 type ThemeOptionProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,8 +28,8 @@ const Navbar = () => {
   const { mode, setMode } = useColorScheme();
   const [toggle, setToggle] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -38,7 +40,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Prevent hydration mismatch: only render UI after mount if using mode
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
@@ -47,7 +48,15 @@ const Navbar = () => {
   return (
     <Box component="nav" className={styles.navbar_container}>
       <Typography variant="h6" fontWeight="700">
-        Logo/Nav
+        <span onClick={() => router.push("/")} className={styles.link}>
+          Home{" "}
+        </span>
+        <KeyboardArrowRightIcon />
+        <span onClick={() => router.push("/chat")} className={styles.link}>
+          Chat
+        </span>
+        <KeyboardArrowRightIcon />
+        <span>ID</span>
       </Typography>
 
       <Box className={styles.settings_wrapper}>

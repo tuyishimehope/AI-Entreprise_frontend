@@ -28,7 +28,7 @@
   width: 100%;
 }
 .form_container input {
-  background-color: var(--background);
+  background-color: var(--color-bg);
 }
 
 @keyframes slideUp {

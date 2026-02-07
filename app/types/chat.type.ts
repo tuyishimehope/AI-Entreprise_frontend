@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 import { Document } from "./document.type";
 
 export type ResponseData = {
@@ -19,3 +20,12 @@ export type ChatsData = {
   document: Document;
   file_id: string;
 };
+
+export interface ChatFormProps {
+  setFile: Dispatch<SetStateAction<File | null>>;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  isLoading: boolean;
+  query: string | null | undefined;
+  setQuery: Dispatch<SetStateAction<string>>;
+  file: File | null | undefined;
+}

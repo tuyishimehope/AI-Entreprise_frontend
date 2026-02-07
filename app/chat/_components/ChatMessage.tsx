@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import LinkIcon from "@mui/icons-material/Link";
-import { ChatsData } from "../types/chat.type";
+import { ChatsData } from "../../types/chat.type";
 import { Box } from "@mui/material";
 import { Dispatch, SetStateAction, useRef } from "react";
 import styles from "./ChatMessage.module.css";
