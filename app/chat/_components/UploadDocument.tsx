@@ -16,8 +16,8 @@ const UploadDocument = ({
   handleFileChange,
 }: UploadDocumentProps) => {
   return (
-    <Box className={styles.form_modal}>
-      <Paper elevation={24} className={styles.form_container}>
+    <Box className={styles.formModal}>
+      <Paper elevation={24} className={styles.formContainer}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">Upload Document</Typography>
           <IconButton onClick={() => setIsModalOpen(false)}>
@@ -25,15 +25,15 @@ const UploadDocument = ({
           </IconButton>
         </Box>
 
-        <form onSubmit={handleSubmit} className={styles.form_inner}>
-          <Box className={styles.file_dropzone}>
+        <form onSubmit={handleSubmit} className={styles.formInner}>
+          <Box className={styles.fileDropzone}>
             <input
               type="file"
               onChange={handleFileChange}
-              className={styles.hidden_input}
+              className={styles.hiddenInput}
               id="file-upload"
             />
-            <label htmlFor="file-upload" className={styles.file_label}>
+            <label htmlFor="file-upload" className={styles.fileLabel}>
               {file ? file.name : "Click to select a PDF"}
             </label>
           </Box>

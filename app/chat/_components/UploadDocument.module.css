@@ -1,42 +1,4 @@
-.main_layout {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  height: calc(100vh - 6vh);
-  padding: 1rem;
-  background-color: var(--background);
-  overflow: hidden;
-}
-
-.hero_section {
-  display: flex;
-  align-items: center;
-  width: 70vw;
-}
-
-.content_section {
-  text-align: left;
-}
-
-.session_card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-subtle);
-  cursor: pointer;
-  overflow-y: scroll;
-  transition: transform 0.2s;
-}
-
-.session_card:hover {
-  /* transform: translateY(-2px); */
-  background-color: var(--color-accent-hover);
-  border-color: var(--foreground);
-}
-
-.form_modal {
+.formModal {
   position: fixed;
   inset: 0;
   display: flex;
@@ -47,7 +9,7 @@
   backdrop-filter: blur(4px);
 }
 
-.form_container {
+.formContainer {
   padding: 2rem;
   width: 90%;
   max-width: 500px;
@@ -55,7 +17,7 @@
   border-radius: 1rem;
 }
 
-.form_inner {
+.formInner {
   color: var(--color-text-primary);
   display: flex;
   flex-direction: column;
@@ -63,25 +25,25 @@
   margin-top: 1.5rem;
 }
 
-.file_dropzone {
+.fileDropzone {
   border: 2px dashed var(--border-subtle);
   padding: 2rem;
   text-align: center;
   border-radius: 12px;
 }
 
-.hidden_input {
+.hiddenInput {
   display: none;
 }
 
-.file_label {
+.fileLabel {
   cursor: pointer;
   color: var(--text-muted);
 }
 
-.form_container h6 {
+.formContainer h6 {
   color: var(--color-text-primary);
 }
-.form_container button {
+.formContainer button {
   color: var(--color-text-primary);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -14,11 +14,10 @@ import SettingsBrightnessIcon from "@mui/icons-material/SettingsBrightness";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SettingsIcon from "@mui/icons-material/Settings";
 import styles from "./navbar.module.css";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type ThemeOptionProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any;
+  icon: ReactElement;
   label: string;
   onClick: () => void;
   active: boolean;
@@ -29,6 +28,7 @@ const Navbar = () => {
   const [toggle, setToggle] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const parms = useParams();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -43,23 +43,55 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
-  if (!mounted) return <Box className={styles.navbar_container} />;
+  if (!mounted) return <Box className={styles.navbarContainer} />;
 
   return (
-    <Box component="nav" className={styles.navbar_container}>
-      <Typography variant="h6" fontWeight="700">
-        <span onClick={() => router.push("/")} className={styles.link}>
-          Home{" "}
-        </span>
-        <KeyboardArrowRightIcon />
-        <span onClick={() => router.push("/chat")} className={styles.link}>
-          Chat
-        </span>
-        <KeyboardArrowRightIcon />
-        <span>ID</span>
-      </Typography>
+    <Box component="nav" className={styles.navbarContainer}>
+      <Box display="flex" alignItems="center" gap={1}>
+        <Typography
+          variant="body2"
+          fontWeight="500"
+          className={styles.breadcrumbItem}
+          onClick={() => router.push("/")}
+        >
+          Home
+        </Typography>
 
-      <Box className={styles.settings_wrapper}>
+        <KeyboardArrowRightIcon
+          sx={{ fontSize: 16, color: "var(--color-text-muted)" }}
+        />
+
+        <Typography
+          variant="body2"
+          fontWeight="500"
+          className={styles.breadcrumbItem}
+          onClick={() => router.push("/chat")}
+        >
+          Chat
+        </Typography>
+
+        <KeyboardArrowRightIcon
+          sx={{ fontSize: 16, color: "var(--color-text-muted)" }}
+        />
+
+        {parms.id && (
+          <Typography
+            variant="body2"
+            fontWeight="600"
+            color="var(--color-text-primary)"
+            sx={{
+              maxWidth: 150,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            ID_{parms?.id.slice(0, 5)}...
+          </Typography>
+        )}
+      </Box>
+
+      <Box className={styles.settingsWrapper}>
         <Typography variant="body2" color="var(--text-muted)">
           User Name
         </Typography>
@@ -73,7 +105,7 @@ const Navbar = () => {
           </IconButton>
 
           {toggle && (
-            <Paper elevation={4} className={styles.themes_dropdown}>
+            <Paper elevation={4} className={styles.themesDropdown}>
               <ThemeOption
                 icon={<SettingsBrightnessIcon fontSize="small" />}
                 label="System"
@@ -111,7 +143,7 @@ const Navbar = () => {
 
 const ThemeOption = ({ icon, label, onClick, active }: ThemeOptionProps) => (
   <Box
-    className={`${styles.theme_item} ${active ? styles.active_option : ""}`}
+    className={`${styles.themeItem} ${active ? styles.activeOption : ""}`}
     onClick={onClick}
   >
     {icon}

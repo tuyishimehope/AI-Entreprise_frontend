@@ -4,3 +4,8 @@ export type SessionData = {
   title: string;
   created_at: string;
 };
+
+export interface SessionProps {
+  sessions: SessionData[];
+  handleDeleteSession: (e: React.MouseEvent, id: string) => Promise<void>;
+}

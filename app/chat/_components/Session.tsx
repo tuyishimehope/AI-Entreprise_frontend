@@ -1,25 +1,16 @@
 import { Box, Typography, Stack, Paper } from "@mui/material";
-import router from "next/router";
-import React from "react";
 import styles from "./Sessions.module.css";
-import { SessionData } from "../../types/Session.type";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-interface SessionProps {
-  sessions: SessionData[];
-  handleDeleteSession: (e: React.MouseEvent, id: string) => Promise<void>;
-}
+import { useRouter } from "next/navigation";
+import { SessionProps } from "@/app/types/Session.type";
 
 const Session = ({ sessions, handleDeleteSession }: SessionProps) => {
+  const router = useRouter();
+
   return (
-    <Box className={styles.session_list_container}>
-      <Typography
-        variant="h6"
-        sx={{ borderBottom: "1px solid var(--border-subtle)", pb: 1 }}
-      >
-        Recent Sessions
-      </Typography>
-      <Stack spacing={2} sx={{ mt: 2 }}>
+    <Box className={styles.sessionContainer}>
+      <Typography variant="h6">Recent Sessions</Typography>
+      <Stack className={styles.sessionContainer__sessions}>
         {sessions.length === 0 ? (
           <Typography color="var(--text-muted)">
             No sessions yet. Start by uploading a file.
@@ -28,18 +19,28 @@ const Session = ({ sessions, handleDeleteSession }: SessionProps) => {
           sessions.map((session) => (
             <Paper
               key={session.id}
-              className={styles.session_card}
+              className={styles.sessionCard}
               onClick={() => router.push(`/chat/${session.id}`)}
             >
               <Box>
-                <Typography variant="body1" fontWeight="600">
+                <Typography
+                  variant="body1"
+                  fontWeight="600"
+                  className={styles.sessionCard__title}
+                >
                   {session.title}
                 </Typography>
-                <Typography variant="caption">
+                <Typography
+                  variant="caption"
+                  className={styles.sessionCard__title}
+                >
                   {new Date(session.created_at).toLocaleDateString()}
                 </Typography>
               </Box>
-              <DeleteIcon onClick={(e) => handleDeleteSession(e, session.id)} />
+              <DeleteIcon
+                className={styles.sessionCard__delete}
+                onClick={(e) => handleDeleteSession(e, session.id)}
+              />
             </Paper>
           ))
         )}

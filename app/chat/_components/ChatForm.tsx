@@ -45,7 +45,7 @@ const ChatForm = ({
         </Box>
       )}
 
-      <form className={styles.form_container} onSubmit={handleSubmit}>
+      <form className={styles.formContainer} onSubmit={handleSubmit}>
         <input
           type="file"
           hidden

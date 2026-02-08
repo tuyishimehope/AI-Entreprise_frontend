@@ -70,14 +70,14 @@ const Page = () => {
     }
   };
   return (
-    <Box className={styles.main_layout}>
-      <Stack className={styles.hero_section}>
+    <Box className={styles.mainLayout}>
+      <Stack className={styles.heroSection}>
         <Box className={styles.image_placeholder}>
           <Image src={heroImage} alt="RAG Illustration" priority />
         </Box>
       </Stack>
 
-      <Stack spacing={4} className={styles.content_section}>
+      <Stack spacing={4} className={styles.contentSection}>
         <Box>
           <Typography variant="h3" fontWeight="800">
             ENTERPRISE RAG

@@ -22,12 +22,12 @@
   animation: slideUp 0.2s ease-out;
 }
 
-.form_container {
+.formContainer {
   display: flex;
   align-items: center;
   width: 100%;
 }
-.form_container input {
+.formContainer input {
   background-color: var(--color-bg);
 }
 

@@ -10,6 +10,7 @@ import "@react-pdf-viewer/search/lib/styles/index.css";
 
 import { useEffect, useRef } from "react";
 import styles from "./FileViewer.module.css";
+import { useColorScheme } from "@mui/material";
 
 export default function FileViewer({
   fileUrl,
@@ -22,6 +23,7 @@ export default function FileViewer({
   const defaultLayoutPluginInstance = defaultLayoutPlugin({
     sidebarTabs: () => [],
   });
+  const theme = useColorScheme();
 
   const { highlight, jumpToMatch, clearHighlights } = searchPluginInstance;
 
@@ -56,6 +58,7 @@ export default function FileViewer({
           onDocumentLoad={() => {
             readyRef.current = true;
           }}
+          theme={theme.colorScheme}
         />
       </Worker>
     </div>
