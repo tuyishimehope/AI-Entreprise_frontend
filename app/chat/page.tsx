@@ -1,22 +1,29 @@
 "use client";
 
 import { Box, Button, Stack, Typography } from "@mui/material";
-import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import heroImage from "../../public/image.png";
+import { selectSessions } from "../lib/features/Sessions/SessionsSelectors";
+import {
+  deleteSession,
+  fetchSessions,
+  startSession,
+} from "../lib/features/Sessions/SessionsThunks";
+import { useAppDispatch, useAppSelector } from "../lib/hooks";
 import Session from "./_components/Session";
 import UploadDocument from "./_components/UploadDocument";
-import { SessionData } from "../types/Session.type";
-import { api } from "../util/api";
 import styles from "./page.module.css";
 
 const Page = () => {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sessions, setSessions] = useState<SessionData[]>([]);
+
+  const { sessions, loading, error, currentSession } =
+    useAppSelector(selectSessions);
+  const dispatch = useAppDispatch();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -31,43 +38,27 @@ const Page = () => {
     const formData = new FormData();
     formData.append("file", file);
     if (!file) return;
-    const response = await axios.post(`${api}/session`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
 
-    if (response.status == 200) {
-      setSessions((prev) => [...prev, response.data]);
-      router.push(`/chat/${response.data.id}`);
-    }
+    dispatch(startSession(formData))
+      .unwrap()
+      .then((res) => {
+        router.push(`/chat/${res.id}`);
+      });
 
     setIsModalOpen(false);
     setFile(null);
   };
 
   useEffect(() => {
-    const loadSessions = async () => {
-      const res = await axios.get(`${api}/session`);
-      setSessions(res.data);
-    };
-
-    loadSessions();
-  }, []);
+    dispatch(fetchSessions());
+  }, [dispatch]);
 
   const handleDeleteSession = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
 
     if (!confirm("Are you sure you want to delete this session?")) return;
 
-    try {
-      const response = await axios.delete(`${api}/session/${id}`);
-      if (response.status === 200 || response.status === 204) {
-        setSessions((prev) => prev.filter((s) => s.id !== id));
-      }
-    } catch (err) {
-      console.error("Delete failed", err);
-    }
+    dispatch(deleteSession(id));
   };
   return (
     <Box className={styles.mainLayout}>
@@ -97,6 +88,8 @@ const Page = () => {
 
         <Session
           sessions={sessions}
+          loading={loading}
+          error={error}
           handleDeleteSession={handleDeleteSession}
         />
       </Stack>

@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "./components/Navbar";
 import "./globals.css";
 import { Providers } from "./providers";
+import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
+import EmotionRegistry from "./emotion-registry";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,18 +23,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" data-theme="data-theme">
+    <html lang="en" data-theme="data-theme" suppressHydrationWarning>
+      <head>
+        <InitColorSchemeScript />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <Navbar />
-          {children}
-        </Providers>
+        <EmotionRegistry>
+          <Providers>
+            <Navbar />
+            {children}
+          </Providers>
+        </EmotionRegistry>
       </body>
     </html>
   );

@@ -7,5 +7,7 @@ export type SessionData = {
 
 export interface SessionProps {
   sessions: SessionData[];
+  loading: boolean;
+  error: string | undefined;
   handleDeleteSession: (e: React.MouseEvent, id: string) => Promise<void>;
 }

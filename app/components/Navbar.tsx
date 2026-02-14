@@ -40,11 +40,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const [mounted, setMounted] = useState(false);
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <Box className={styles.navbarContainer} />;
-
   return (
     <Box component="nav" className={styles.navbarContainer}>
       <Box display="flex" alignItems="center" gap={1}>

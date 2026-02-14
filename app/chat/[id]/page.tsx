@@ -1,108 +1,57 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { selectSessions } from "@/app/lib/features/Sessions/SessionsSelectors";
+import {
+  fetchSessionById,
+  getFileId,
+  sendMessage,
+} from "@/app/lib/features/Sessions/SessionsThunks";
+import { useAppDispatch, useAppSelector } from "@/app/lib/hooks";
 import { Box } from "@mui/material";
-import axios from "axios";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import PdfClientViewer from "../../components/PdfClientViewer";
+import { ChatsData } from "../../types/chat.type";
+import { api } from "../../util/api";
 import ChatForm from "../_components/ChatForm";
 import ChatMessage from "../_components/ChatMessage";
-import PdfClientViewer from "../../components/PdfClientViewer";
-import { api } from "../../util/api";
-import { ChatsData } from "../../types/chat.type";
 import styles from "./page.module.css";
-import { useParams } from "next/navigation";
+import apiClient from "@/app/util/apiClient";
 
 const Page = () => {
   const [query, setQuery] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const [fileId, setFileId] = useState<string | null>(null);
   const [data, setData] = useState<ChatsData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [activeHighlight, setActiveHighlight] = useState("");
-  const parms = useParams();
-  const session_id = parms.id;
+  const { id: session_id } = useParams();
+  const dispatch = useAppDispatch();
+  const {
+    loading,
+    error,
+    fileId,
+    data: messages,
+  } = useAppSelector(selectSessions);
 
-  const fetchHistory = useCallback(async () => {
-    try {
-      const { data: history } = await axios.get(`${api}/history/${session_id}`);
-      setData(history);
-    } catch (err) {
-      console.error("Failed to load history", err);
+  useEffect(() => {
+    if (session_id) {
+      dispatch(fetchSessionById(session_id as string));
+      dispatch(getFileId(session_id as string));
     }
-  }, []);
-
-  const getFileId = async () => {
-    const result = await axios.get(`${api}/session/${session_id}`);
-    setFileId(result.data.document_id);
-  };
-
-  useEffect(() => {
-    getFileId();
-  }, []);
-
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+  }, [dispatch, session_id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim() || isLoading) return;
+    if (!query.trim() || loading) return;
 
-    const currentQuery = query;
-    const tempId = Date.now().toString();
-
-    const optimisticMessage: ChatsData = {
-      id: tempId,
-      question: currentQuery,
-      answer: "Thinking...",
-      sources: [],
-      created_at: "",
-      document_id: "",
-      document: {
-        filename: "",
-        id: "",
-        created_at: "",
-      },
-      file_id: "",
-    };
+    const chatFormData = new FormData();
+    chatFormData.append("question", query);
+    chatFormData.append("file_id", String(fileId));
+    chatFormData.append("session_id", String(session_id));
 
     setQuery("");
-    setData((prev) => [...(prev ?? []), optimisticMessage]);
-    setIsLoading(true);
 
-    try {
-      const chatFormData = new FormData();
-      if (currentQuery && typeof currentQuery === "string") {
-        chatFormData.append("question", currentQuery);
-      }
-
-      if (fileId && session_id) {
-        const documentId = String(fileId);
-        const sessionId = String(session_id);
-        chatFormData.append("file_id", documentId);
-        chatFormData.append("session_id", sessionId);
-      }
-
-      const { data: responseData } = await axios.post(
-        `${api}/chat`,
-        chatFormData,
-      );
-
-      setData((prev) =>
-        prev.map((msg) => (msg.id === tempId ? responseData : msg)),
-      );
-    } catch (error) {
-      setData((prev) =>
-        prev.map((msg) =>
-          msg.id === tempId
-            ? { ...msg, answer: "Error: Could not reach AI." }
-            : msg,
-        ),
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(sendMessage(chatFormData));
   };
-
   return (
     <Box className={styles.chat_container}>
       <Box className={styles.chat_document}>
@@ -112,10 +61,14 @@ const Page = () => {
         />
       </Box>
       <Box className={styles.chat_content}>
-        <ChatMessage data={data} setActiveHighlight={setActiveHighlight} />
+        <ChatMessage
+          data={messages}
+          setActiveHighlight={setActiveHighlight}
+          loading={loading}
+        />
         <ChatForm
           file={file}
-          isLoading={isLoading}
+          isLoading={loading}
           query={query}
           handleSubmit={handleSubmit}
           setFile={setFile}
