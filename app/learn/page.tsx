@@ -4,20 +4,33 @@ import {
   Box,
   Button,
   Container,
+  IconButton,
   LinearProgress,
+  Modal,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { z } from "zod";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 import IdentityStep, { identitySchema } from "./Components/IdentityStep";
 import SecurityStep, { securitySchema } from "./Components/SecurityStep";
+import styles from "./page.module.css";
 
 const fullSchema = identitySchema.merge(securitySchema);
 
 type formType = z.infer<typeof fullSchema>;
 
+const steps = {
+  target: "title",
+  content: "Hello world",
+};
+
 const MultiStepForm = () => {
+  const [openOnboarding, setOpenOnboarding] = useState(false);
+  const [startOnboarding, setStartOnboarding] = useState(false);
+  const onboardingRef = useRef<HTMLElement | null>(null);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<formType>({
     name: "",
@@ -57,8 +70,22 @@ const MultiStepForm = () => {
     }
   };
 
+  const handleToggleOnboarding = () => {
+    setOpenOnboarding((prev) => !prev);
+  };
+
+  const handleStartOnboarding = () => {
+    setOpenOnboarding((prev) => !prev);
+    setStartOnboarding((prev) => !prev);
+  };
+
   return (
-    <Container maxWidth="sm" sx={{ pt: 10 }}>
+    <Container maxWidth="sm" sx={{ pt: 10 }} className={styles.container}>
+      {startOnboarding && (
+        <Stack>
+          <Box ref={onboardingRef} className={styles.onboardingContainer}></Box>
+        </Stack>
+      )}
       <Box sx={{ width: "100%", mb: 4 }}>
         <Typography variant="caption">
           Step {step} of {totalSteps}
@@ -93,6 +120,31 @@ const MultiStepForm = () => {
           </Stack>
         </Stack>
       </form>
+      <Stack className={styles.onboarding}>
+        <Tooltip
+          title={"onboarding"}
+          placement="top"
+          onClick={handleToggleOnboarding}
+        >
+          <IconButton>
+            <QuestionMarkIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+      {openOnboarding && (
+        <Stack className={styles.startOnboarding}>
+          <Modal
+            open={openOnboarding}
+            onClose={handleToggleOnboarding}
+            className={styles.onboardingModal}
+          >
+            <Box>
+              <Typography variant="h6">Onboarding</Typography>
+              <Button onClick={handleStartOnboarding}>Start onboarding</Button>
+            </Box>
+          </Modal>
+        </Stack>
+      )}
     </Container>
   );
 };
